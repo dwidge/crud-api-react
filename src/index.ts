@@ -1,5 +1,4 @@
 export * from "./Api.js";
-export * from "./assert.js";
 export * from "./friendlyErrorMessage.js";
 export * from "./randId.js";
 export * from "./useApi.js";
