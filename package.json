@@ -1,6 +1,8 @@
 {
   "name": "@dwidge/crud-api-react",
   "version": "0.0.3",
+  "description": "A CRUD API library with swr for React applications.",
+  "repository": "github:dwidge/crud-api-react",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
@@ -16,7 +18,8 @@
     "src"
   ],
   "scripts": {
-    "prepare": "rimraf dist && ncp assets/ dist/ && tsc && tsc --project tsconfig.esm.json"
+    "prepare": "rimraf dist && ncp assets/ dist/ && tsc && tsc --project tsconfig.esm.json",
+    "test": "node --test"
   },
   "peerDependencies": {
     "@dwidge/query-axios-zod": "0.0.4",
@@ -32,5 +35,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "packageManager": "pnpm@9.7.1",
+  "engines": {
+    "node": ">=20"
   }
 }
