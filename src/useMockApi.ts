@@ -8,15 +8,15 @@ import { useMockState } from "./useMockState.js";
 
 export const useMockApi = <
   Id,
-  Key extends { id: Id },
+  Key extends { id?: Id },
   Mini extends Key,
   Full extends Mini,
   Filter extends FilterType,
   Create,
-  Update extends Key
+  Update extends Key,
 >(
   list = useMockState<Full[]>([]),
-  createRandom: () => Full
+  createRandom: () => Full,
 ): Api<Id, Key, Mini, Full, Filter, Create, Update> => ({
   getList: async () => {
     const [currentList] = list;
@@ -31,7 +31,7 @@ export const useMockApi = <
     }));
 
     setList([...currentList, ...createdItems]);
-    return createdItems.map((item) => ({ id: item.id } as Key));
+    return createdItems.map((item) => ({ id: item.id }) as Key);
   },
   updateList: async (updateList) => {
     const [currentList, setList] = list;
@@ -44,19 +44,19 @@ export const useMockApi = <
       currentList.map((prop) => {
         const updatedItem = updated.find((u) => u.id === prop.id);
         return updatedItem ? updatedItem : prop;
-      })
+      }),
     );
-    return updated.map((v) => ({ id: v.id } as Key));
+    return updated.map((v) => ({ id: v.id }) as Key);
   },
   deleteList: async (filterList) => {
     const [currentList, setList] = list;
     const deleted = currentList.filter((prop) =>
-      filterList.find((f) => f.id === prop.id)
+      filterList.find((f) => f.id === prop.id),
     );
     setList(
-      currentList.filter((prop) => !filterList.find((f) => f.id === prop.id))
+      currentList.filter((prop) => !filterList.find((f) => f.id === prop.id)),
     );
-    return deleted.map((v) => ({ id: v.id } as Key));
+    return deleted.map((v) => ({ id: v.id }) as Key);
   },
   get: async (key) => {
     const [currentList] = list;

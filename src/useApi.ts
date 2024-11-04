@@ -14,12 +14,12 @@ export type FilterType = Record<
 
 export const useApi = <
   Id,
-  Key extends { id: Id },
+  Key extends { id?: Id },
   Mini extends Key,
   Full extends Mini,
   Filter extends FilterType,
   Create,
-  Update extends Key
+  Update extends Key,
 >(
   fetch: Fetch,
   route: string,
@@ -28,39 +28,39 @@ export const useApi = <
   FullSchema: ZodType<Full, any, any>,
   FilterSchema: ZodType<Filter, any, any>,
   CreateSchema: ZodType<Create, any, any>,
-  UpdateSchema: ZodType<Update, any, any>
+  UpdateSchema: ZodType<Update, any, any>,
 ): Api<Id, Key, Mini, Full, Filter, Create, Update> => ({
   getList: (filter) =>
     fetch(
       "get",
       route +
         "?" +
-        getQueryStringFromObject(FilterSchema.optional().parse(filter))
+        getQueryStringFromObject(FilterSchema.optional().parse(filter)),
     ).then((v) => MiniSchema.array().parse(v)),
   createList: (list) =>
     fetch("post", route, CreateSchema.array().parse(list)).then((r) =>
-      KeySchema.array().parse(r)
+      KeySchema.array().parse(r),
     ),
   updateList: (list) =>
     fetch("put", route, UpdateSchema.array().parse(list)).then((r) =>
-      KeySchema.array().parse(r)
+      KeySchema.array().parse(r),
     ),
   deleteList: (list) =>
     fetch("delete", route, FilterSchema.array().parse(list)).then((r) =>
-      KeySchema.array().parse(r)
+      KeySchema.array().parse(r),
     ),
   get: (key) =>
     fetch("get", route + "/" + KeySchema.parse(key).id).then((r) =>
-      FullSchema.nullable().parse(r)
+      FullSchema.nullable().parse(r),
     ),
   update: (key, value) =>
     fetch(
       "put",
       route + "/" + KeySchema.parse(key).id,
-      UpdateSchema.parse(value)
+      UpdateSchema.parse(value),
     ).then((r) => KeySchema.nullable().parse(r)),
   delete: (key) =>
     fetch("delete", route + "/" + KeySchema.parse(key).id).then((r) =>
-      KeySchema.nullable().parse(r)
+      KeySchema.nullable().parse(r),
     ),
 });

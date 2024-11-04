@@ -6,12 +6,12 @@ import { FilterType } from "./useApi.js";
 
 export type Api<
   Id,
-  Key extends { id: Id },
+  Key extends { id?: Id },
   Mini extends Key,
   Full extends Mini,
   Filter extends FilterType,
   Create,
-  Update extends Key
+  Update extends Key,
 > = {
   getList: (filter?: Filter) => Promise<Mini[]>;
   createList: (list: Create[]) => Promise<Key[]>;
