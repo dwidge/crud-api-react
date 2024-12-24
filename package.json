@@ -25,6 +25,7 @@
     "test": "node --enable-source-maps --test --test-name-pattern"
   },
   "peerDependencies": {
+    "@dwidge/hooks-react": "^0.0.4",
     "@dwidge/query-axios-zod": "^0.0.13",
     "axios": "^1.7.7",
     "react": "^18.2.0",

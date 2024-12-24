@@ -2,25 +2,32 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-import { AxiosError } from "axios";
+import { AxiosError, isAxiosError } from "axios";
 
 export const friendlyErrorMessage = (v: string | Error) =>
-  v instanceof Error ? errorMessage(v) ?? "Something went wrong" : v;
+  getUserMessage(v instanceof Error ? getErrorMessage(v) : `${v}`);
 
-const errorMessage = (e: Error) =>
-  e instanceof AxiosError ? responseUserMessage(e) : undefined;
-
-const responseUserMessage = (e: AxiosError) =>
-  e.message === "Network Error"
+const getUserMessage = (message?: string) =>
+  message === "Network Error"
     ? "Could not connect to server"
-    : responseErrorMessage(e)?.split(":").at(-1);
+    : (message?.split(":").at(-1) ?? "Something went wrong");
 
-export const responseErrorMessage = (e: AxiosError): string | undefined =>
-  typeof e.response?.data === "object" &&
-  e.response?.data &&
-  "message" in e.response.data &&
-  typeof e.response.data.message === "string"
-    ? e.response.data.message
-    : typeof e.response?.data === "string"
-    ? e.response?.data
+const getErrorMessage = (e: Error) =>
+  isAxiosError(e) ? getAxiosMessage(e) : e.message;
+
+const getAxiosMessage = (e: AxiosError) => getResponseMessage(e.response?.data);
+
+const getResponseMessage = (data: unknown): string | undefined =>
+  data && typeof data === "object"
+    ? (getDataMessage(data) ?? getDataError(data))
+    : typeof data === "string"
+      ? data
+      : undefined;
+
+const getDataMessage = (data: object): string | undefined =>
+  "message" in data && typeof data.message === "string"
+    ? data.message
     : undefined;
+
+const getDataError = (data: object): string | undefined =>
+  "error" in data && typeof data.error === "string" ? data.error : undefined;
