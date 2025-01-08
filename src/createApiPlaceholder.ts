@@ -1,13 +1,13 @@
-import { ApiRecord } from "./BaseApi";
-import { BaseApiHooks } from "./BaseApiHooks";
+import { BaseApiHooks } from "./BaseApiHooks.js";
+import { ApiRecord } from "./types.js";
 
-export const createApiPlaceholder = <T extends ApiRecord>(
+export const createApiPlaceholder = <T extends ApiRecord, PK = Pick<T, "id">>(
   name: string,
   warn = () =>
     console.warn(
       `createApiContext1: Please wrap App with <${name}.Provider value={{...}}></${name}.Provider>`,
     ),
-): BaseApiHooks<Partial<T>> => ({
+): BaseApiHooks<T, PK> => ({
   useGetList: () => (warn(), undefined),
   useSetList: () => (warn(), undefined),
   useCreateList: () => (warn(), undefined),

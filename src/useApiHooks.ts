@@ -3,84 +3,68 @@
 // https://www.boost.org/LICENSE_1_0.txt
 
 import { assert } from "@dwidge/query-axios-zod";
-import { SetStateAction } from "react";
-import { useMutation } from "./useMutation";
-import { useQuery } from "./useQuery";
-import { BaseApiHooks } from "./BaseApiHooks";
-import { ApiRecord, ExtendedApi } from ".";
+import { ExtendedApi } from "./BaseApi.js";
+import { BaseApiHooks } from "./BaseApiHooks.js";
+import { ApiGetItemHook, ApiRecord } from "./types.js";
+import { useMutation } from "./useMutation.js";
+import { useQuery } from "./useQuery.js";
 
-export const useApiHooks = <T extends ApiRecord>(
+export const useApiSwr = <T extends ApiRecord, PK = Pick<T, "id">>(
   table: string,
-  useApi: () => ExtendedApi<T>,
+  useApi: () => ExtendedApi<T, PK>,
   useToken: () => string | undefined,
   useCompanyId: () => number | null | undefined,
-): BaseApiHooks<T> => {
-  const useGetList = (filter?: T, api = useApi()): T[] | undefined =>
+): BaseApiHooks<T, PK> => {
+  const useGetList = (filter, options, api = useApi()) =>
     useQuery(
       [useCompanyId(), table, filter],
-      () => api.getList(filter),
+      () => api.getList(filter, options),
       !!useToken() && !!filter,
     );
 
-  const useSetList = (
-    api = useApi(),
-  ): ((list: T[]) => Promise<T[]>) | undefined =>
+  const useSetList = (api = useApi()) =>
     useMutation(
       [useCompanyId(), table],
-      (list) => api.setList(list),
+      (list) => api.setList(list as any),
       !!useToken(),
     );
 
-  const useCreateList = (
-    api = useApi(),
-  ): undefined | ((list: T[]) => Promise<T[]>) =>
+  const useCreateList = (api = useApi()) =>
     useMutation(
       [useCompanyId(), table],
-      (list) => api.createList(list),
+      (list) => api.createList(list as any),
       !!useToken(),
     );
 
-  const useUpdateList = (
-    api = useApi(),
-  ): ((list: T[]) => Promise<T[]>) | undefined =>
+  const useUpdateList = (api = useApi()) =>
     useMutation(
       [useCompanyId(), table],
-      (list) => api.updateList(list),
+      (list) => api.updateList(list as any),
       !!useToken(),
     );
 
-  const useDeleteList = (
-    api = useApi(),
-  ): ((list: T[]) => Promise<T[]>) | undefined =>
+  const useDeleteList = (api = useApi()) =>
     useMutation(
       [useCompanyId(), table],
-      (list) => api.deleteList(list),
+      (list) => api.deleteList(list as any),
       !!useToken(),
     );
 
-  const useList = (
-    filter?: T,
-    api = useApi(),
-  ): [T[]?, ((list: T[]) => Promise<T[]>)?, ((list: T[]) => Promise<T[]>)?] => [
-    useGetList(filter, api),
-    useSetList(api),
-    useDeleteList(api),
-  ];
+  const useList = (filter?: T, columns?: (keyof T)[], api = useApi()) =>
+    [
+      useGetList(filter, columns, api),
+      useSetList(api),
+      useDeleteList(api),
+    ] as const;
 
-  const useGetItem = (
-    filter?: T | null,
-    api = useApi(),
-  ): T | null | undefined =>
+  const useGetItem = ((filter, options, api = useApi()) =>
     useQuery(
       [useCompanyId(), table, filter],
       async () => (assert(filter != null), [await api.getItem(filter)]),
       !!useToken() && filter != null,
-    )?.[0];
+    )?.[0]) satisfies ApiGetItemHook<T>;
 
-  const useSetItem = (
-    filter?: T | null,
-    api = useApi(),
-  ): ((item: SetStateAction<T | null>) => Promise<T | null>) | undefined =>
+  const useSetItem = (filter?: T | null, api = useApi()) =>
     useMutation(
       [useCompanyId(), table],
       (
@@ -92,45 +76,43 @@ export const useApiHooks = <T extends ApiRecord>(
         nextValue
           ? api.updateItem(nextValue)
           : filter != null
-            ? api.deleteItem(filter)
+            ? api.deleteItem(filter as any)
             : Promise.resolve(null),
       !!useToken() && filter != null,
     );
 
-  const useCreateItem = (
-    api = useApi(),
-  ): ((filter: T) => Promise<T | null>) | undefined =>
+  const useCreateItem = (api = useApi()) =>
     useMutation(
       [useCompanyId(), table],
-      (list) => api.createItem(list),
+      (list) => api.createItem(list as any),
       !!useToken(),
     );
 
-  const useUpdateItem = (
-    api = useApi(),
-  ): ((filter: T) => Promise<T | null>) | undefined =>
+  const useUpdateItem = (api = useApi()) =>
     useMutation(
       [useCompanyId(), table],
-      (list) => api.updateItem(list),
+      (list) => api.updateItem(list as any),
       !!useToken(),
     );
 
-  const useDeleteItem = (
-    api = useApi(),
-  ): ((filter: T) => Promise<T | null>) | undefined =>
+  const useDeleteItem = (api = useApi()) =>
     useMutation(
       [useCompanyId(), table],
-      (list) => api.deleteItem(list),
+      (list) => api.deleteItem(list as any),
       !!useToken(),
     );
 
-  const useItem = (
-    filter?: T | null,
+  const useItem = <K extends keyof T>(
+    filter?: Partial<T> | null,
+    options?: {
+      columns?: K[];
+    },
     api = useApi(),
-  ): [ReturnType<typeof useGetItem>, ReturnType<typeof useSetItem>] => [
-    useGetItem(filter, api),
-    useSetItem(filter, api),
-  ];
+  ) =>
+    [
+      useGetItem(filter as any, options, api),
+      useSetItem(filter as any, api),
+    ] as const;
 
   return {
     useGetList,
@@ -146,5 +128,5 @@ export const useApiHooks = <T extends ApiRecord>(
     useUpdateItem,
     useDeleteItem,
     useItem,
-  };
+  } as any;
 };

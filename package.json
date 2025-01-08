@@ -1,6 +1,6 @@
 {
   "name": "@dwidge/crud-api-react",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "A CRUD API library with swr for React applications.",
   "repository": {
     "type": "git",
@@ -25,8 +25,8 @@
     "test": "node --enable-source-maps --test --test-name-pattern"
   },
   "peerDependencies": {
-    "@dwidge/hooks-react": "^0.0.4",
-    "@dwidge/query-axios-zod": "^0.0.13",
+    "@dwidge/hooks-react": "^0.0.5",
+    "@dwidge/query-axios-zod": "^0.0.14",
     "axios": "^1.7.7",
     "react": "^18.2.0",
     "swr": "^2.2.5",

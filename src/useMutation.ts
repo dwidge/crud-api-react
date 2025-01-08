@@ -8,7 +8,7 @@ import { Arguments, useSWRConfig } from "swr";
 export const useMutation = <Req, Res>(
   key: Arguments,
   fetcher: (extra: Req) => Promise<Res>,
-  enable: boolean
+  enable: boolean,
 ) => {
   const m = useSWRMutation(key, useArg(fetcher));
   const u = useUpdater(key);
@@ -31,6 +31,6 @@ const useUpdater =
         (key) =>
           key instanceof Array &&
           keyFilter instanceof Array &&
-          keyFilter.every((k, i) => k === key[i])
+          keyFilter.every((k, i) => k === key[i]),
       )
       .then(() => r);

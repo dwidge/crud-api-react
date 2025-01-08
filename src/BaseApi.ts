@@ -7,69 +7,91 @@ import {
   Fetch,
   getQueryStringFromObject,
 } from "@dwidge/query-axios-zod";
+import {
+  ApiGetList,
+  ApiSetList,
+  ApiRecord,
+  ParseItem,
+  ApiGetItem,
+  ApiSetItem,
+  ApiWmdbItem1,
+} from "./types.js";
 
-export type ConvertItem<A, D> = (v: A) => D;
-export type AssertItem<T> = ConvertItem<T, T>;
-export type ParseItem<T> = ConvertItem<any, T>;
-
-export type ApiRecord = Record<
-  string,
-  string | number | boolean | null | undefined
->;
-export type ApiItem<Id extends string = string> = {
-  id: Id;
-  updatedAt: number;
-  createdAt: number;
-  deletedAt: number | null;
-  authorId: Id | null;
-  companyId: Id | null;
+export type BaseApi<T extends ApiRecord, PK = Pick<T, "id">> = {
+  getList: ApiGetList<T>;
+  setList: ApiSetList<T, PK>;
+  delList: ApiSetList<T, PK>;
 };
 
-export type BaseApi<T extends ApiRecord> = {
-  getList: (filter?: T) => Promise<T[]>;
-  setList: (list: T[]) => Promise<T[]>;
-};
-export const useBaseApi = <T extends ApiRecord>(
-  parse: ParseItem<T>,
+export const useBaseApi = <T extends ApiRecord, PK = Pick<T, "id">>(
+  parse: ParseItem<Partial<T>>,
   routePath: string,
   fetch: Fetch,
-): BaseApi<T> => ({
-  getList: async (filter?: T) =>
+): BaseApi<T, PK> => ({
+  getList: async (filter, options) =>
     fetch(
       "get",
-      routePath + "?" + getQueryStringFromObject(parse(filter ?? {})),
-    ).then((v) => (assert(Array.isArray(v), "getList1"), v.map(parse))),
-  setList: (v: T[]) =>
+      routePath +
+        "?" +
+        getQueryStringFromObject(
+          parse({
+            ...Object.fromEntries(
+              options?.columns?.map((k) => [k, undefined]) ?? [],
+            ),
+            ...filter,
+          }),
+        ),
+    ).then(
+      (v) => (assert(Array.isArray(v), "getList1"), v.map(parse) as any[]),
+    ),
+  setList: (v) =>
     fetch("put", routePath, (assert(Array.isArray(v)), v.map(parse))).then(
       (v) => (assert(Array.isArray(v), "setList1"), v.map(parse)),
-    ),
+    ) as any,
+  delList: (v) =>
+    fetch("delete", routePath, (assert(Array.isArray(v)), v.map(parse))).then(
+      (v) => (assert(Array.isArray(v), "delList1"), v.map(parse)),
+    ) as any,
 });
 
-export type ExtendedApi<T extends ApiRecord> = BaseApi<T> & {
-  createList: (list: T[]) => Promise<T[]>;
-  updateList: (list: T[]) => Promise<T[]>;
-  deleteList: (list: T[]) => Promise<T[]>;
-  getItem: (item: T) => Promise<T | null>;
-  setItem: (item: T) => Promise<T | null>;
-  createItem: (item: T) => Promise<T | null>;
-  updateItem: (item: T) => Promise<T | null>;
-  deleteItem: (item: T) => Promise<T | null>;
+export type ExtendedApi<T extends ApiRecord, PK = Pick<T, "id">> = BaseApi<
+  T,
+  PK
+> & {
+  createList: ApiSetList<T, PK>;
+  updateList: ApiSetList<T, PK>;
+  deleteList: ApiSetList<T, PK>;
+  getItem: ApiGetItem<T>;
+  setItem: ApiSetItem<T, PK>;
+  createItem: ApiSetItem<T, PK>;
+  updateItem: ApiSetItem<T, PK>;
+  deleteItem: ApiSetItem<T, PK>;
 };
-export const useExtendedApi = <T extends ApiRecord>(
-  base: BaseApi<T>,
-): ExtendedApi<T> => ({
-  ...base,
-  createList: (list: T[]) => base.setList(list),
-  updateList: (list: T[]) => base.setList(list),
-  deleteList: (list: T[]) => base.setList(list.map(deleteItem)),
-  getItem: (item: T) => base.getList(item).then(firstItem),
-  setItem: (item: T) => base.setList([item]).then(firstItem),
-  createItem: (item: T) => base.setList([item]).then(firstItem),
-  updateItem: (item: T) => base.setList([item]).then(firstItem),
-  deleteItem: (item: T) => base.setList([item].map(deleteItem)).then(firstItem),
+1;
+export const useExtendedApi = <T extends ApiWmdbItem1, PK = Pick<T, "id">>({
+  getList,
+  setList,
+  delList,
+}: BaseApi<T, PK>): ExtendedApi<T, PK> => ({
+  getList,
+  setList,
+  delList,
+  ...{
+    getItem: (item) => getList(item).then(firstItem),
+  },
+  ...{
+    createList: (list) => setList(list),
+    updateList: (list) => setList(list),
+    deleteList: (list) => delList(list),
+    setItem: (item) => setList([item]).then(firstItem) as any,
+    createItem: (item) => setList([item]).then(firstItem) as any,
+    updateItem: (item) => setList([item]).then(firstItem) as any,
+    deleteItem: (item) => delList([item]).then(firstItem) as any,
+  },
 });
 
 const firstItem = <T>(a: T[]) => a[0] ?? null;
-const deleteItem = <T>(v: T) => ({ deletedAt: unixTime(), ...v });
+const deleteItem = <T extends ApiRecord, V extends Partial<T>>(v: V) =>
+  ({ deletedAt: unixTime(), ...v }) as V;
 
 const unixTime = () => (Date.now() / 1000) | 0;

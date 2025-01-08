@@ -1,6 +1,7 @@
 export * from "./Api.js";
 export * from "./friendlyErrorMessage.js";
 export * from "./randId.js";
+export * from "./types.js";
 export * from "./useApi.js";
 export * from "./useApiHooks.js";
 export * from "./BaseApi.js";
