@@ -54,7 +54,7 @@ export type ApiGetListHook<T> = {
 
 export type ApiGetList<T> = <K extends keyof T>(
   filter?: ApiFilter<T>,
-  options?: { columns?: K[] },
+  options?: { columns?: K[]; offset?: number; limit?: number },
 ) => Promise<ApiReturn<T, K>[]>;
 
 export type ApiSetList<T, PK> = <V extends Partial<T>>(

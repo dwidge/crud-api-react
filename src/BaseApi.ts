@@ -33,14 +33,16 @@ export const useBaseApi = <T extends ApiRecord, PK = Pick<T, "id">>(
       "get",
       routePath +
         "?" +
-        getQueryStringFromObject(
-          parse({
+        getQueryStringFromObject({
+          ...(options?.offset != null ? { _offset: options?.offset } : {}),
+          ...(options?.limit != null ? { _limit: options?.limit } : {}),
+          ...parse({
             ...Object.fromEntries(
               options?.columns?.map((k) => [k, undefined]) ?? [],
             ),
             ...filter,
           }),
-        ),
+        }),
     ).then(
       (v) => (assert(Array.isArray(v), "getList1"), v.map(parse) as any[]),
     ),
