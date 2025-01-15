@@ -10,6 +10,7 @@ import {
   ApiReturn,
   ApiSetItem,
   ApiSetList,
+  QueryOptions,
 } from "./types.js";
 
 export type BaseApiHooks<T extends ApiRecord, PK> = {
@@ -20,7 +21,7 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
   useDeleteList: () => ApiSetList<T, PK> | undefined;
   useList: <K extends keyof T>(
     filter?: Partial<T>,
-    options?: { columns?: K[] },
+    options?: QueryOptions<K>,
   ) => [
     items?: ApiReturn<T, K>[],
     setItems?: ApiSetList<T, PK>,
@@ -34,7 +35,7 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
   useDeleteItem: () => ApiSetItem<T, PK> | undefined;
   useItem: <K extends keyof T>(
     filter?: Partial<T>,
-    options?: { columns?: K[] },
+    options?: QueryOptions<K>,
   ) => AsyncState<ApiReturn<T, K> | null, Partial<T> | null>;
 };
 

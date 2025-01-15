@@ -48,13 +48,13 @@ export type ApiFilter<T> = {
 export type ApiGetListHook<T> = {
   <K extends keyof T>(
     filter?: ApiFilter<T>,
-    options?: { columns?: K[] },
+    options?: QueryOptions<K>,
   ): ApiReturn<T, K>[] | undefined;
 };
 
 export type ApiGetList<T> = <K extends keyof T>(
   filter?: ApiFilter<T>,
-  options?: { columns?: K[]; offset?: number; limit?: number },
+  options?: QueryOptions<K>,
 ) => Promise<ApiReturn<T, K>[]>;
 
 export type ApiSetList<T, PK> = <V extends Partial<T>>(
@@ -64,17 +64,26 @@ export type ApiSetList<T, PK> = <V extends Partial<T>>(
 export type ApiGetItemHook<T> = {
   <K extends keyof T>(
     filter?: ApiFilter<T>,
-    options?: { columns?: K[] },
+    options?: QueryOptions<K>,
   ): ApiReturn<T, K> | null | undefined;
 };
 
 export type ApiGetItem<T> = {
   <K extends keyof T>(
     filter?: ApiFilter<T>,
-    options?: { columns?: K[] },
+    options?: QueryOptions<K>,
   ): Promise<ApiReturn<T, K> | null>;
 };
 
 export type ApiSetItem<T, PK> = <V extends Partial<T>>(
   item: Partial<T>,
 ) => Promise<PK | null>;
+
+export interface QueryOptions<K> {
+  offset?: number;
+  limit?: number;
+  columns?: K[];
+  order?: [column: K, direction: "ASC" | "DESC"][];
+}
+
+export type StringKey<T> = keyof T extends string ? keyof T : never;
