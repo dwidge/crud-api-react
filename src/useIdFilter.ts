@@ -14,3 +14,5 @@
  */
 export const useIdFilter = <T extends string | number>(id?: T | null) =>
   id != null ? { id } : undefined;
+
+export const asId = (id?: string | null) => (id != null ? { id } : undefined);
