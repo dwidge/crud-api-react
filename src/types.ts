@@ -45,15 +45,23 @@ export type ApiFilter<T> = {
   [P in keyof T]?: T[P] | T[P][];
 };
 
-export type ApiGetListHook<T> = {
-  <K extends keyof T>(
-    filter?: ApiFilter<T>,
-    options?: QueryOptions<K>,
-  ): ApiReturn<T, K>[] | undefined;
+export type ApiFilterValue<T> =
+  | T[keyof T]
+  | { range: [T[keyof T] | undefined, T[keyof T] | undefined] };
+export type ApiFilterObject<T> = {
+  [P in keyof T]?: ApiFilterValue<T> | ApiFilterValue<T>[];
+};
+export type ApiDefaultObject<T> = {
+  [P in keyof T]?: T[P];
 };
 
+export type ApiGetListHook<T> = <K extends keyof T>(
+  filter?: ApiFilterObject<T>,
+  options?: QueryOptions<K>,
+) => ApiReturn<T, K>[] | undefined;
+
 export type ApiGetList<T> = <K extends keyof T>(
-  filter?: ApiFilter<T>,
+  filter?: ApiFilterObject<T>,
   options?: QueryOptions<K>,
 ) => Promise<ApiReturn<T, K>[]>;
 
@@ -61,16 +69,14 @@ export type ApiSetList<T, PK> = <V extends Partial<T>>(
   list: V[],
 ) => Promise<PK[]>;
 
-export type ApiGetItemHook<T> = {
-  <K extends keyof T>(
-    filter?: ApiFilter<T>,
-    options?: QueryOptions<K>,
-  ): ApiReturn<T, K> | null | undefined;
-};
+export type ApiGetItemHook<T> = <K extends keyof T>(
+  filter?: ApiDefaultObject<T>,
+  options?: QueryOptions<K>,
+) => ApiReturn<T, K> | null | undefined;
 
 export type ApiGetItem<T> = {
   <K extends keyof T>(
-    filter?: ApiFilter<T>,
+    filter?: ApiDefaultObject<T>,
     options?: QueryOptions<K>,
   ): Promise<ApiReturn<T, K> | null>;
 };
