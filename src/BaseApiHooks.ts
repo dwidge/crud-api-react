@@ -4,6 +4,7 @@
 
 import { AsyncState } from "@dwidge/hooks-react";
 import {
+  ApiFilterObject,
   ApiGetItemHook,
   ApiGetListHook,
   ApiRecord,
@@ -37,6 +38,7 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
     filter?: Partial<T>,
     options?: QueryOptions<K>,
   ) => AsyncState<ApiReturn<T, K> | null, Partial<T> | null>;
+  useCount: (filter?: ApiFilterObject<T>) => number | undefined;
 };
 
 export type ApiHooks<T extends ApiRecord, PK = Pick<T, "id">> = BaseApiHooks<
