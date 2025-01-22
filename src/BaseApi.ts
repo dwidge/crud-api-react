@@ -14,7 +14,6 @@ import {
   ParseItem,
   ApiGetItem,
   ApiSetItem,
-  ApiWmdbItem1,
 } from "./types.js";
 
 export type BaseApi<T extends ApiRecord, PK = Pick<T, "id">> = {
@@ -69,8 +68,8 @@ export type ExtendedApi<T extends ApiRecord, PK = Pick<T, "id">> = BaseApi<
   updateItem: ApiSetItem<T, PK>;
   deleteItem: ApiSetItem<T, PK>;
 };
-1;
-export const useExtendedApi = <T extends ApiWmdbItem1, PK = Pick<T, "id">>({
+
+export const useExtendedApi = <T extends ApiRecord, PK = Pick<T, "id">>({
   getList,
   setList,
   delList,
