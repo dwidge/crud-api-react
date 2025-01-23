@@ -5,6 +5,7 @@ export * from "./BaseApiHooks.js";
 export * from "./cache.js";
 export * from "./createApiPlaceholder.js";
 export * from "./friendlyErrorMessage.js";
+export * from "./getUserErrorMessage.js";
 export * from "./JsonStorage.js";
 export * from "./Provider.js";
 export * from "./randId.js";
