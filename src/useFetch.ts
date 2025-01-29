@@ -3,12 +3,12 @@
 // https://www.boost.org/LICENSE_1_0.txt
 
 import axios, { AxiosError, AxiosInstance } from "axios";
-import { friendlyErrorMessage } from "./friendlyErrorMessage.js";
 
 export type Fetch = <R, B>(
   method: "get" | "post" | "put" | "delete",
   url: string,
   data?: B,
+  signal?: AbortSignal,
 ) => Promise<R>;
 
 export const useFetch =
@@ -17,9 +17,10 @@ export const useFetch =
     baseURL?: string,
     token?: string,
   ): Fetch =>
-  (method, url, data) =>
+  (method, url, data, signal?: AbortSignal) =>
     axiosInstance
       .request({
+        signal,
         url,
         method,
         data,
@@ -27,18 +28,23 @@ export const useFetch =
         headers: token ? { Authorization: token } : {},
       })
       .then((r) => r.data)
-      .catch((e) => {
-        throw e instanceof AxiosError
-          ? new Error(friendlyErrorMessage(e) ?? e.message, {
-              cause: {
-                code: e.code,
-                message: e.message,
-                url: e.config?.url,
-                method: e.config?.method,
-                headers: e.config?.headers,
-                data: e.response?.data,
-                status: e.response?.status,
-              },
-            })
-          : e;
-      });
+      // .catch((e) => {
+      //   throw e instanceof AxiosError
+      //     ? new Error(e.message, {
+      //         cause: {
+      //           code: e.code,
+      //           message: e.message,
+      //           url: e.config?.url,
+      //           method: e.config?.method,
+      //           headers: e.config?.headers,
+      //           data: e.response?.data,
+      //           status: e.response?.status,
+      //         },
+      //       })
+      //     : e;
+      // });
+
+export const useAbortableFetch =
+  (fetch: Fetch, defaultSignal?: AbortSignal): Fetch =>
+  (method, url, data, signal?: AbortSignal) =>
+    fetch(method, url, data, signal ?? defaultSignal);
