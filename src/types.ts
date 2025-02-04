@@ -47,7 +47,8 @@ export type ApiFilter<T> = {
 
 export type ApiFilterValue<T> =
   | T[keyof T]
-  | { range: [T[keyof T] | undefined, T[keyof T] | undefined] };
+  | { $range: [T[keyof T] | undefined, T[keyof T] | undefined] }
+  | { $not: T[keyof T] };
 export type ApiFilterObject<T> = {
   [P in keyof T]?: ApiFilterValue<T> | ApiFilterValue<T>[];
 };
