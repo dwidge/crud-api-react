@@ -12,6 +12,7 @@ import {
   ApiSetItem,
   ApiSetList,
   QueryOptions,
+  StringKey,
 } from "./types.js";
 
 export type BaseApiHooks<T extends ApiRecord, PK> = {
@@ -41,6 +42,12 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
     options?: QueryOptions<K>,
   ) => AsyncState<ApiReturn<T, K> | null, Partial<T> | null>;
   useCount: (filter?: ApiFilterObject<T>) => number | undefined;
+
+  get: (
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<StringKey<T>>,
+  ) => Promise<T[] | undefined>;
+  count: (filter?: Partial<T>) => Promise<number | undefined>;
 };
 
 export type ApiHooks<T extends ApiRecord, PK = Pick<T, "id">> = BaseApiHooks<
