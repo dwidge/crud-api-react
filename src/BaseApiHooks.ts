@@ -20,6 +20,7 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
   useCreateList: (filter?: Partial<T>) => ApiSetList<T, PK> | undefined;
   useUpdateList: () => ApiSetList<T, PK> | undefined;
   useDeleteList: () => ApiSetList<T, PK> | undefined;
+  useRestoreList: () => ApiSetList<T, PK> | undefined;
   useList: <K extends keyof T>(
     filter?: Partial<T>,
     options?: QueryOptions<K>,
@@ -34,6 +35,7 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
   useCreateItem: (filter?: Partial<T>) => ApiSetItem<T, PK> | undefined;
   useUpdateItem: () => ApiSetItem<T, PK> | undefined;
   useDeleteItem: () => ApiSetItem<T, PK> | undefined;
+  useRestoreItem: () => ApiSetItem<T, PK> | undefined;
   useItem: <K extends keyof T>(
     filter?: Partial<T>,
     options?: QueryOptions<K>,
