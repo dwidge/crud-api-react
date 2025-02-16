@@ -78,7 +78,7 @@ export const useExtendedApi = <T extends ApiRecord, PK = Pick<T, "id">>({
   setList,
   delList,
   ...{
-    getItem: (item) => getList(item).then(firstItem),
+    getItem: (item, options) => getList(item, options).then(firstItem),
   },
   ...{
     createList: (list) => setList(list),
