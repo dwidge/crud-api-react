@@ -13,7 +13,7 @@ export const useGetLocal = <T>(
 export const useSetLocal = <T>(key: string): ((v: T | undefined) => void) =>
   useSWR<T>(() => key).mutate;
 
-export const useLocal = <T>(key: string): AsyncState<T> => [
-  useGetLocal<T>(key),
+export const useLocal = <T>(key: string, init?: T): AsyncState<T> => [
+  useGetLocal<T>(key) ?? init,
   useSetLocal<T>(key) as AsyncDispatch<T>,
 ];
