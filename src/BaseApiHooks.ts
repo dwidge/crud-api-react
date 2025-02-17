@@ -46,7 +46,7 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
   get: (
     filter?: ApiFilterObject<T>,
     options?: QueryOptions<StringKey<T>>,
-  ) => Promise<T[] | undefined>;
+  ) => Promise<T[]>;
   count: (filter?: Partial<T>) => Promise<number | undefined>;
 };
 
