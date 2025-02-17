@@ -15,7 +15,7 @@ export const useFetch =
   (
     axiosInstance: AxiosInstance = axios,
     baseURL?: string,
-    token?: string,
+    token?: string | null,
   ): Fetch =>
   (method, url, data, signal?: AbortSignal) =>
     axiosInstance
@@ -27,22 +27,22 @@ export const useFetch =
         baseURL,
         headers: token ? { Authorization: token } : {},
       })
-      .then((r) => r.data)
-      // .catch((e) => {
-      //   throw e instanceof AxiosError
-      //     ? new Error(e.message, {
-      //         cause: {
-      //           code: e.code,
-      //           message: e.message,
-      //           url: e.config?.url,
-      //           method: e.config?.method,
-      //           headers: e.config?.headers,
-      //           data: e.response?.data,
-      //           status: e.response?.status,
-      //         },
-      //       })
-      //     : e;
-      // });
+      .then((r) => r.data);
+// .catch((e) => {
+//   throw e instanceof AxiosError
+//     ? new Error(e.message, {
+//         cause: {
+//           code: e.code,
+//           message: e.message,
+//           url: e.config?.url,
+//           method: e.config?.method,
+//           headers: e.config?.headers,
+//           data: e.response?.data,
+//           status: e.response?.status,
+//         },
+//       })
+//     : e;
+// });
 
 export const useAbortableFetch =
   (fetch: Fetch, defaultSignal?: AbortSignal): Fetch =>

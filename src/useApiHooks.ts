@@ -12,7 +12,7 @@ import { useQuery } from "./useQuery.js";
 export const useApiSwr = <T extends ApiRecord, PK = Pick<T, "id">>(
   table: string,
   useApi: () => ExtendedApi<T, PK>,
-  useToken: () => string | undefined,
+  useToken: () => string | null | undefined,
   useCompanyId: () => number | null | undefined,
 ): BaseApiHooks<T, PK> => {
   const useGetList = (filter, options, api = useApi()) =>
