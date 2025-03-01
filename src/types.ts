@@ -1,3 +1,5 @@
+import { AsyncState } from "@dwidge/hooks-react";
+
 export type ConvertItem<A, D> = (v: A) => D;
 export type AssertItem<T> = ConvertItem<T, T>;
 export type ParseItem<T> = ConvertItem<any, T>;
@@ -38,9 +40,6 @@ export type ApiWmdbItem1<Id extends string = string> = {
   deletedAt: number | null;
 };
 
-export type ApiReturn<T, K extends keyof T> = K[] extends undefined
-  ? T
-  : Pick<T, K>;
 export type ApiFilter<T> = {
   [P in keyof T]?: T[P] | T[P][];
 };
@@ -56,41 +55,101 @@ export type ApiDefaultObject<T> = {
   [P in keyof T]?: T[P];
 };
 
-export type ApiGetListHook<T> = <K extends keyof T>(
-  filter?: ApiFilterObject<T>,
-  options?: QueryOptions<K>,
-) => ApiReturn<T, K>[] | undefined;
+export type ApiGetListHook<T> = {
+  <K extends keyof T>(
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {
+      columns: K[];
+    },
+  ): Pick<T, K>[] | undefined;
+  (
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {},
+  ): T[] | undefined;
+};
 
-export type ApiGetList<T> = <K extends keyof T>(
-  filter?: ApiFilterObject<T>,
-  options?: QueryOptions<K>,
-) => Promise<ApiReturn<T, K>[]>;
+export type ApiGetList<T> = {
+  <K extends keyof T>(
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {
+      columns: K[];
+    },
+  ): Promise<Pick<T, K>[]>;
+  (filter?: ApiFilterObject<T>, options?: QueryOptions<T> & {}): Promise<T[]>;
+};
 
 export type ApiSetList<T, PK> = <V extends Partial<T>>(
   list: V[],
 ) => Promise<PK[]>;
 
-export type ApiGetItemHook<T> = <K extends keyof T>(
-  filter?: ApiDefaultObject<T>,
-  options?: QueryOptions<K>,
-) => ApiReturn<T, K> | null | undefined;
+export type ApiGetItemHook<T> = {
+  <K extends keyof T>(
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {
+      columns: K[];
+    },
+  ): Pick<T, K> | null | undefined;
+  (
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {},
+  ): T | null | undefined;
+};
 
 export type ApiGetItem<T> = {
   <K extends keyof T>(
-    filter?: ApiDefaultObject<T>,
-    options?: QueryOptions<K>,
-  ): Promise<ApiReturn<T, K> | null>;
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {
+      columns: K[];
+    },
+  ): Promise<Pick<T, K> | null>;
+  (
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {},
+  ): Promise<T | null>;
 };
 
 export type ApiSetItem<T, PK> = <V extends Partial<T>>(
   item: Partial<T>,
 ) => Promise<PK | null>;
 
-export interface QueryOptions<K> {
+export interface QueryOptions<T> {
   offset?: number;
   limit?: number;
-  columns?: K[];
-  order?: [column: K, direction: "ASC" | "DESC"][];
+  order?: [column: keyof T, direction: "ASC" | "DESC"][];
 }
 
 export type StringKey<T> = keyof T extends string ? keyof T : never;
+
+export type ApiListHook<T, PK> = {
+  <K extends keyof T>(
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {
+      columns: K[];
+    },
+  ): [
+    items: Pick<T, K>[] | undefined,
+    setItems: ApiSetList<T, PK> | undefined,
+    delItems: ApiSetList<T, PK> | undefined,
+  ];
+  (
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {},
+  ): [
+    items: T[] | undefined,
+    setItems: ApiSetList<T, PK> | undefined,
+    delItems: ApiSetList<T, PK> | undefined,
+  ];
+};
+
+export type ApiItemHook<T> = {
+  <K extends keyof T>(
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {
+      columns: K[];
+    },
+  ): AsyncState<Pick<T, K> | null, Partial<T> | null>;
+  (
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & {},
+  ): AsyncState<T | null, Partial<T> | null>;
+};

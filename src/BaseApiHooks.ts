@@ -6,13 +6,13 @@ import { AsyncState } from "@dwidge/hooks-react";
 import {
   ApiFilterObject,
   ApiGetItemHook,
+  ApiGetList,
   ApiGetListHook,
+  ApiItemHook,
+  ApiListHook,
   ApiRecord,
-  ApiReturn,
   ApiSetItem,
   ApiSetList,
-  QueryOptions,
-  StringKey,
 } from "./types.js";
 
 export type BaseApiHooks<T extends ApiRecord, PK> = {
@@ -22,14 +22,7 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
   useUpdateList: () => ApiSetList<T, PK> | undefined;
   useDeleteList: () => ApiSetList<T, PK> | undefined;
   useRestoreList: () => ApiSetList<T, PK> | undefined;
-  useList: <K extends keyof T>(
-    filter?: Partial<T>,
-    options?: QueryOptions<K>,
-  ) => [
-    items?: ApiReturn<T, K>[],
-    setItems?: ApiSetList<T, PK>,
-    delItems?: ApiSetList<T, PK>,
-  ];
+  useList: ApiListHook<T, PK>;
 
   useGetItem: ApiGetItemHook<T>;
   useSetItem: (filter?: Partial<T>) => AsyncState<Partial<T> | null>[1];
@@ -37,16 +30,10 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
   useUpdateItem: () => ApiSetItem<T, PK> | undefined;
   useDeleteItem: () => ApiSetItem<T, PK> | undefined;
   useRestoreItem: () => ApiSetItem<T, PK> | undefined;
-  useItem: <K extends keyof T>(
-    filter?: Partial<T>,
-    options?: QueryOptions<K>,
-  ) => AsyncState<ApiReturn<T, K> | null, Partial<T> | null>;
+  useItem: ApiItemHook<T>;
   useCount: (filter?: ApiFilterObject<T>) => number | undefined;
 
-  get: (
-    filter?: ApiFilterObject<T>,
-    options?: QueryOptions<StringKey<T>>,
-  ) => Promise<T[]>;
+  get: ApiGetList<T>;
   count: (filter?: Partial<T>) => Promise<number | undefined>;
 };
 
