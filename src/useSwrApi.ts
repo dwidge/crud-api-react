@@ -9,7 +9,7 @@ import { ApiGetItemHook, ApiRecord } from "./types.js";
 import { useMutation } from "./useMutation.js";
 import { useQuery } from "./useQuery.js";
 
-export const useApiSwr = <T extends ApiRecord, PK = Pick<T, "id">>(
+export const useSwrApi = <T extends ApiRecord, PK = Pick<T, "id">>(
   table: string,
   useApi: () => ExtendedApi<T, PK>,
   useToken: () => string | null | undefined,
