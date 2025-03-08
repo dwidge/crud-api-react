@@ -37,6 +37,10 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
   count: (filter?: Partial<T>) => Promise<number | undefined>;
 };
 
+export type ApiGetHooks<T extends ApiRecord, PK = Pick<T, "id">> = {
+  get: ApiGetList<T>;
+};
+
 export type ApiHooks<T extends ApiRecord, PK = Pick<T, "id">> = BaseApiHooks<
   T,
   PK
