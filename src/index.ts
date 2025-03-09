@@ -3,6 +3,7 @@ export * from "./Api.js";
 export * from "./BaseApi.js";
 export * from "./BaseApiHooks.js";
 export * from "./cache.js";
+export * from "./Context.js";
 export * from "./createApiPlaceholder.js";
 export * from "./friendlyErrorMessage.js";
 export * from "./getUserErrorMessage.js";
