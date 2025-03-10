@@ -18,6 +18,7 @@ export * from "./useFetch.js";
 export * from "./useIdFilter.js";
 export * from "./useLocal.js";
 export * from "./useMemoryApi.js";
+export * from "./useMemoryApiReadonly.js";
 export * from "./useMockApi.js";
 export * from "./useMockState.js";
 export * from "./useMutation.js";
