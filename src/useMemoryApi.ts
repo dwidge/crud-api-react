@@ -5,7 +5,8 @@ import {
   useAsyncState,
 } from "@dwidge/hooks-react";
 import { dropUndefined } from "@dwidge/query-axios-zod";
-import { useCallback } from "react";
+import { filterDuplicatesBy } from "@dwidge/utils-js";
+import { useCallback, useMemo } from "react";
 import { BaseApiHooks } from "./BaseApiHooks.js";
 import { randId } from "./randId.js";
 import {
@@ -63,9 +64,13 @@ export const useMemoryApi = <
   const preUpdater = usePreUpdate?.() ?? defaultParse;
 
   const [itemsState, setItemsState] = initialItems;
+  const uniqueItems = useMemo(
+    () => filterDuplicatesBy(itemsState ?? [], (v) => v.id),
+    [itemsState],
+  );
 
   // Returns current items or an empty array.
-  const getItems = useCallback((): T[] => itemsState ?? [], [itemsState]);
+  const getItems = useCallback((): T[] => uniqueItems ?? [], [uniqueItems]);
 
   // Updates items if setter is available; otherwise logs a warning.
   const setItemsInternal = useCallback(

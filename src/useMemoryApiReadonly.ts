@@ -1,4 +1,6 @@
 import { AsyncState } from "@dwidge/hooks-react";
+import { filterDuplicatesBy } from "@dwidge/utils-js";
+import { useMemo } from "react";
 import { BaseApiHooks } from "./BaseApiHooks.js";
 import { randId } from "./randId.js";
 import {
@@ -56,9 +58,13 @@ export const useMemoryApiReadonly = <
   // const preUpdater = usePreUpdate?.() ?? defaultParse; // ignored in readonly mode
 
   const [itemsState] = initialItems; // only use itemsState, ignore setItemsState
+  const uniqueItems = useMemo(
+    () => filterDuplicatesBy(itemsState ?? [], (v) => v.id),
+    [itemsState],
+  );
 
   // Returns current items or an empty array.
-  const getItems = (): T[] => itemsState ?? [];
+  const getItems = (): T[] => uniqueItems;
 
   // Updates items if setter is available; otherwise logs a warning. // No setter in readonly
   const setItemsInternal = undefined; // readonly mode
