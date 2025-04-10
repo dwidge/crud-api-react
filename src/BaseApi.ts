@@ -35,6 +35,8 @@ export const useBaseApi = <T extends ApiRecord, PK = Pick<T, "id">>(
         getQueryStringFromObject({
           ...(options?.offset != null ? { _offset: options?.offset } : {}),
           ...(options?.limit != null ? { _limit: options?.limit } : {}),
+          ...(options?.from != null ? { _from: options?.from } : {}),
+          ...(options?.history != null ? { _history: options?.history } : {}),
           ...parse({
             ...Object.fromEntries(
               options?.columns?.map((k) => [k, undefined]) ?? [],

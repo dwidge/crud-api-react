@@ -72,7 +72,7 @@ export type ApiGetList<T> = {
   <K extends keyof T>(
     filter?: ApiFilterObject<T>,
     options?: QueryOptions<T> & {
-      columns: K[];
+      columns?: K[];
     },
   ): Promise<Pick<T, K>[]>;
   (filter?: ApiFilterObject<T>, options?: QueryOptions<T> & {}): Promise<T[]>;
@@ -116,6 +116,8 @@ export interface QueryOptions<T> {
   offset?: number;
   limit?: number;
   order?: [column: keyof T, direction: "ASC" | "DESC"][];
+  history?: number;
+  from?: number;
 }
 
 export type StringKey<T> = keyof T extends string ? keyof T : never;
