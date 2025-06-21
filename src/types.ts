@@ -9,37 +9,6 @@ export type ApiRecord = Record<
   string | number | boolean | null | undefined
 >;
 
-export type ApiItem<Id extends string = string> = {
-  id: Id;
-};
-export type ApiItem1<Id extends string = string> = {
-  id: Id;
-  created: boolean;
-  createdAt: number;
-  createdBy: number | null;
-};
-export type ApiItem2<Id extends string = string> = {
-  id: Id;
-  updatedAt: number;
-  createdAt: number;
-  deletedAt: number | null;
-  createdBy: number | null;
-};
-export type ApiItem3<Id extends string = string> = {
-  id: Id;
-  updatedAt: number;
-  createdAt: number;
-  deletedAt: number | null;
-  authorId: Id | null;
-  companyId: Id | null;
-};
-export type ApiWmdbItem1<Id extends string = string> = {
-  id: Id;
-  updatedAt: number;
-  createdAt: number;
-  deletedAt: number | null;
-};
-
 export type ApiFilter<T> = {
   [P in keyof T]?: T[P] | T[P][];
 };
