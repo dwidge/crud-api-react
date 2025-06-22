@@ -6,6 +6,7 @@ export * from "./BaseApiHooks.js";
 export * from "./cache.js";
 export * from "./Context.js";
 export * from "./createApiPlaceholder.js";
+export * from "./DbItem.js";
 export * from "./friendlyErrorMessage.js";
 export * from "./getUserErrorMessage.js";
 export * from "./JsonStorage.js";
