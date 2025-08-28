@@ -1,14 +1,10 @@
-export const getUserErrorMessage = (input?: string): string | undefined => {
-  if (isValidationErrorMessage(input))
-    return extractValidationErrorMessage(extractDetailErrorMessage(input));
-};
+export const getUserErrorMessage = (input?: string): string | undefined =>
+  isValidationErrorMessage(input)
+    ? extractValidationErrorMessage(extractDetailErrorMessage(input))
+    : extractDetailErrorMessage(input);
 
-const extractDetailErrorMessage = (input?: string): string | undefined => {
-  if (!input) return;
-
-  const m = input.split(":");
-  return m[m.length - 1];
-};
+const extractDetailErrorMessage = (input?: string): string | undefined =>
+  input?.split(":").at(-1);
 
 const isValidationErrorMessage = (input?: string): boolean =>
   !!input?.includes("validationError");
