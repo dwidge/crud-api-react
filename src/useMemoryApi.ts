@@ -58,7 +58,6 @@ export const useMemoryApi = <
     generateRandomId?: () => string;
   } = {},
 ): BaseApiHooks<T, PK> => {
-  // Use identity if no parse function is provided.
   const defaultParse: ParseItem<T> = (v: any) => v as T;
   const parser = parse ?? defaultParse;
   const preUpdater = usePreUpdate?.() ?? defaultParse;
@@ -69,10 +68,8 @@ export const useMemoryApi = <
     [itemsState],
   );
 
-  // Returns current items or an empty array.
   const getItems = useCallback((): T[] => uniqueItems ?? [], [uniqueItems]);
 
-  // Updates items if setter is available; otherwise logs a warning.
   const setItemsInternal = useCallback(
     (newItems: T[]) => {
       if (setItemsState) {
@@ -84,10 +81,8 @@ export const useMemoryApi = <
     [setItemsState],
   );
 
-  // Returns the current Unix timestamp.
   const getUnixTimestamp = () => Math.floor(Date.now() / 1000);
 
-  // Filters items based on an optional filter object.
   const filterItems = useCallback(
     (currentItems: T[], filter?: ApiFilterObject<T>): T[] => {
       if (!filter) return currentItems;
@@ -130,7 +125,6 @@ export const useMemoryApi = <
     [],
   );
 
-  // Sorts items based on query options. If options.order is undefined, an empty array is used.
   const sortItems = useCallback(
     (
       currentItems: T[],
@@ -160,7 +154,6 @@ export const useMemoryApi = <
     [],
   );
 
-  // Paginates items using offset and limit.
   const paginateItems = useCallback(
     (
       currentItems: T[],
@@ -177,8 +170,6 @@ export const useMemoryApi = <
     },
     [],
   );
-
-  // ─── LIST OPERATIONS ─────────────────────────────────────────────
 
   const useGetList: BaseApiHooks<T, PK>["useGetList"] = useCallback(
     <K extends keyof T>(
@@ -203,7 +194,6 @@ export const useMemoryApi = <
     [getItems, filterItems, sortItems, paginateItems],
   );
 
-  // The "get" function returns a Promise of parsed items.
   const get: BaseApiHooks<T, PK>["get"] = useCallback(
     async <K extends keyof T>(
       filter?: ApiFilterObject<T>,
@@ -250,7 +240,7 @@ export const useMemoryApi = <
       );
     };
     return setList;
-  }, [getItems, preUpdater, setItemsInternal, setItemsState]);
+  }, [getItems, preUpdater, setItemsInternal, setItemsState, generateRandomId]);
 
   const useCreateList: BaseApiHooks<T, PK>["useCreateList"] = useCallback(
     (filter?: Partial<T>) => {
@@ -272,7 +262,7 @@ export const useMemoryApi = <
       };
       return createList;
     },
-    [getItems, preUpdater, setItemsInternal, setItemsState],
+    [getItems, preUpdater, setItemsInternal, setItemsState, generateRandomId],
   );
 
   const useUpdateList: BaseApiHooks<T, PK>["useUpdateList"] =
@@ -305,7 +295,6 @@ export const useMemoryApi = <
       return updateList;
     }, [getItems, preUpdater, setItemsInternal, setItemsState]);
 
-  // Instead of removing items, mark them as deleted by setting deletedAt.
   const useDeleteList: BaseApiHooks<T, PK>["useDeleteList"] =
     useCallback(() => {
       if (!setItemsState) return undefined;
@@ -327,7 +316,6 @@ export const useMemoryApi = <
       return deleteList;
     }, [getItems, setItemsInternal, setItemsState]);
 
-  // Restores items by setting deletedAt to null and updating updatedAt.
   const useRestoreList: BaseApiHooks<T, PK>["useRestoreList"] =
     useCallback(() => {
       if (!setItemsState) return undefined;
@@ -371,7 +359,6 @@ export const useMemoryApi = <
       filter?: ApiFilterObject<T>,
       options?: QueryOptions<T> & { columns?: K[] },
     ) => {
-      // When setting limit, we cast the options so that columns are (keyof T)[]
       const list =
         useGetList(
           filter,
@@ -385,8 +372,6 @@ export const useMemoryApi = <
     },
     [useGetList],
   );
-
-  // ─── SINGLE ITEM OPERATIONS ─────────────────────────────────────
 
   const useCreateItem: BaseApiHooks<T, PK>["useCreateItem"] = useCallback(
     (filter?: Partial<T>) => {
@@ -407,7 +392,7 @@ export const useMemoryApi = <
       };
       return createItem;
     },
-    [getItems, preUpdater, setItemsInternal, setItemsState],
+    [getItems, preUpdater, setItemsInternal, setItemsState, generateRandomId],
   );
 
   const useUpdateItem: BaseApiHooks<T, PK>["useUpdateItem"] =
@@ -484,36 +469,35 @@ export const useMemoryApi = <
       return restoreItem;
     }, [getItems, setItemsInternal, setItemsState]);
 
-  // The hook for an individual item returns an AsyncState tuple: [value, setter].
-  const useSetItem: BaseApiHooks<T, PK>["useSetItem"] = useCallback(
-    (filter?: Partial<T>) => {
-      const setItemAsync: AsyncDispatch<Partial<T> | null> = async (
-        valueOrFn,
-      ): Promise<Partial<T> | null> => {
-        const currentItems = getItems();
+  const useSetItem: BaseApiHooks<T, PK>["useSetItem"] = (
+    filter?: Partial<T>,
+  ) => {
+    const createFn = useCreateItem();
+    const updateFn = useUpdateItem();
+    const deleteFn = useDeleteItem();
+
+    const setItemAsync: AsyncDispatch<Partial<T> | null> = useCallback(
+      async (valueOrFn): Promise<Partial<T> | null> => {
         const filterObj = filter
           ? ({ ...filter } as ApiFilterObject<T>)
           : ({} as ApiFilterObject<T>);
         const existing = useGetItem(filterObj) as T | null | undefined;
-        let newValue: Partial<T> | null = await getActionValue(
+        const newValue: Partial<T> | null = await getActionValue(
           valueOrFn,
           existing ?? null,
         );
         if (newValue === null) {
-          const delFn = useDeleteItem();
-          if (existing && delFn) {
-            await delFn(existing);
+          if (existing && deleteFn) {
+            await deleteFn(existing);
           }
           return null;
         }
         if (existing) {
-          const updateFn = useUpdateItem();
           if (updateFn) {
             await updateFn({ ...existing, ...newValue });
             return getItems().find((i) => i.id === existing!.id) || null;
           }
         } else {
-          const createFn = useCreateItem();
           if (createFn) {
             const toCreate = { ...newValue } as T;
             if (!toCreate.id) {
@@ -524,31 +508,31 @@ export const useMemoryApi = <
           }
         }
         return null;
-      };
-      const [value, internalSet] = useAsyncState<Partial<T> | null>(null);
-      return setItemsState ? setItemAsync : internalSet;
-    },
-    [
-      getItems,
-      setItemsState,
-      useGetItem,
-      useDeleteItem,
-      useUpdateItem,
-      useCreateItem,
-    ],
-  );
+      },
+      [
+        createFn,
+        deleteFn,
+        filter,
+        getItems,
+        updateFn,
+        useGetItem,
+        generateRandomId,
+      ],
+    );
 
-  const useItem: BaseApiHooks<T, PK>["useItem"] = useCallback(
-    <K extends keyof T>(
-      filter?: ApiFilterObject<T>,
-      options?: QueryOptions<T> & { columns?: K[] },
-    ) => {
-      const value = useGetItem(filter, options);
-      const setter = useSetItem(filter as Partial<T>);
-      return [value, setter] as any;
-    },
-    [useGetItem, useSetItem],
-  );
+    const [, internalSet] = useAsyncState<Partial<T> | null>(null);
+
+    return setItemsState ? setItemAsync : internalSet;
+  };
+
+  const useItem: BaseApiHooks<T, PK>["useItem"] = <K extends keyof T>(
+    filter?: ApiFilterObject<T>,
+    options?: QueryOptions<T> & { columns?: K[] },
+  ) => {
+    const value = useGetItem(filter, options);
+    const setter = useSetItem(filter as Partial<T>);
+    return [value, setter] as any;
+  };
 
   const useCount: BaseApiHooks<T, PK>["useCount"] = useCallback(
     (filter?: ApiFilterObject<T>) => {
