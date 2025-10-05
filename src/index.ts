@@ -1,6 +1,7 @@
 export { assert, type Fetch } from "@dwidge/query-axios-zod";
 export * from "./Api.js";
 export * from "./ApiItem.js";
+export * from "./ApiMetrics.js";
 export * from "./BaseApi.js";
 export * from "./BaseApiHooks.js";
 export * from "./cache.js";

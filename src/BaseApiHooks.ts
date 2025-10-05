@@ -3,6 +3,7 @@
 // https://www.boost.org/LICENSE_1_0.txt
 
 import { AsyncState } from "@dwidge/hooks-react";
+import { ApiMetrics } from "./ApiMetrics.js";
 import {
   ApiFilterObject,
   ApiGetItemHook,
@@ -37,6 +38,8 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
 
   get: ApiGetList<T>;
   count: (filter?: Partial<T>) => Promise<number | undefined>;
+
+  metrics?: ApiMetrics;
 
   CacheProvider: React.FC<{
     filter?: ApiFilterObject<T> | undefined;
