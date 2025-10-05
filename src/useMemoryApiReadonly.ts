@@ -302,5 +302,6 @@ export const useMemoryApiReadonly = <
     useCount,
     get,
     count,
+    CacheProvider: ({ children }) => children,
   };
 };

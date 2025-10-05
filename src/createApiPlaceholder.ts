@@ -25,4 +25,5 @@ export const createApiPlaceholder = <T extends ApiRecord, PK = Pick<T, "id">>(
   useCount: () => (warn(), undefined),
   get: async () => (warn(), []),
   count: async () => (warn(), undefined),
+  CacheProvider: ({ children }) => children,
 });

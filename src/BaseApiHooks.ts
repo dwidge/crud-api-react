@@ -13,6 +13,8 @@ import {
   ApiRecord,
   ApiSetItem,
   ApiSetList,
+  QueryOptions,
+  StringKey,
 } from "./types.js";
 
 export type BaseApiHooks<T extends ApiRecord, PK> = {
@@ -35,6 +37,15 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
 
   get: ApiGetList<T>;
   count: (filter?: Partial<T>) => Promise<number | undefined>;
+
+  CacheProvider: React.FC<{
+    filter?: ApiFilterObject<T> | undefined;
+    options?: QueryOptions<StringKey<T>> & {
+      columns?: StringKey<T>[];
+    };
+    list?: T[];
+    children: React.ReactNode;
+  }>;
 };
 
 export type ApiGetHooks<T extends ApiRecord, PK = Pick<T, "id">> = {

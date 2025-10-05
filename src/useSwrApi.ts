@@ -128,5 +128,6 @@ export const useSwrApi = <T extends ApiRecord, PK = Pick<T, "id">>(
     useUpdateItem,
     useDeleteItem,
     useItem,
+    CacheProvider: ({ children }) => children,
   } as any;
 };
