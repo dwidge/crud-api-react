@@ -8,12 +8,12 @@ import {
   getQueryStringFromObject,
 } from "@dwidge/query-axios-zod";
 import {
-  ApiGetList,
-  ApiSetList,
-  ApiRecord,
-  ParseItem,
   ApiGetItem,
+  ApiGetList,
+  ApiRecord,
   ApiSetItem,
+  ApiSetList,
+  ParseItem,
 } from "./types.js";
 
 export type BaseApi<T extends ApiRecord, PK = Pick<T, "id">> = {
@@ -21,6 +21,16 @@ export type BaseApi<T extends ApiRecord, PK = Pick<T, "id">> = {
   setList: ApiSetList<T, PK>;
   delList: ApiSetList<T, PK>;
 };
+
+const parseCatch =
+  <T>(parse: (v: any) => Partial<T>, code: string) =>
+  (v: any) => {
+    try {
+      return parse(v);
+    } catch (e) {
+      throw new Error(`${code}: ${e}\n${JSON.stringify(v)}`);
+    }
+  };
 
 export const useBaseApi = <T extends ApiRecord, PK = Pick<T, "id">>(
   parse: ParseItem<Partial<T>>,
@@ -37,7 +47,10 @@ export const useBaseApi = <T extends ApiRecord, PK = Pick<T, "id">>(
           ...(options?.limit != null ? { _limit: options?.limit } : {}),
           ...(options?.from != null ? { _from: options?.from } : {}),
           ...(options?.history != null ? { _history: options?.history } : {}),
-          ...parse({
+          ...parseCatch(
+            parse,
+            "getListE3",
+          )({
             ...Object.fromEntries(
               options?.columns?.map((k) => [k, undefined]) ?? [],
             ),
@@ -45,7 +58,10 @@ export const useBaseApi = <T extends ApiRecord, PK = Pick<T, "id">>(
           }),
         }),
     ).then(
-      (v) => (assert(Array.isArray(v), "getList1"), v.map(parse) as any[]),
+      (v) => (
+        assert(Array.isArray(v), "getListE1"),
+        v.map(parseCatch(parse, "getListE2")) as any[]
+      ),
     ),
   setList: (v) =>
     fetch("put", routePath, (assert(Array.isArray(v)), v.map(parse))).then(
