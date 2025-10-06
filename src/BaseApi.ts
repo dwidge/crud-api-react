@@ -37,32 +37,23 @@ export const useBaseApi = <T extends ApiRecord, PK = Pick<T, "id">>(
   routePath: string,
   fetch: Fetch,
 ): BaseApi<T, PK> => ({
-  getList: async (filter, options) =>
-    fetch(
-      "get",
-      routePath +
-        "?" +
-        getQueryStringFromObject({
-          ...(options?.offset != null ? { _offset: options?.offset } : {}),
-          ...(options?.limit != null ? { _limit: options?.limit } : {}),
-          ...(options?.from != null ? { _from: options?.from } : {}),
-          ...(options?.history != null ? { _history: options?.history } : {}),
-          ...parseCatch(
-            parse,
-            "getListE3",
-          )({
-            ...Object.fromEntries(
-              options?.columns?.map((k) => [k, undefined]) ?? [],
-            ),
-            ...filter,
-          }),
-        }),
-    ).then(
-      (v) => (
-        assert(Array.isArray(v), "getListE1"),
-        v.map(parseCatch(parse, "getListE2")) as any[]
-      ),
-    ),
+  getList: async (filter, options) => {
+    const parseItem = parseCatch(parse, "getListE1");
+    const parsedFilter = parseFilter<T>(parseItem, {
+      ...makeColumnFilter(options?.columns),
+      ...filter,
+    });
+    const queryString = getQueryStringFromObject({
+      ...(options?.offset != null ? { _offset: options?.offset } : {}),
+      ...(options?.limit != null ? { _limit: options?.limit } : {}),
+      ...(options?.from != null ? { _from: options?.from } : {}),
+      ...(options?.history != null ? { _history: options?.history } : {}),
+      ...parsedFilter,
+    });
+    return fetch("get", routePath + "?" + queryString).then(
+      (v) => (assert(Array.isArray(v), "getListE2"), v.map(parseItem) as any[]),
+    );
+  },
   setList: (v) =>
     fetch("put", routePath, (assert(Array.isArray(v)), v.map(parse))).then(
       (v) => (assert(Array.isArray(v), "setList1"), v.map(parse)),
@@ -114,3 +105,21 @@ const deleteItem = <T extends ApiRecord, V extends Partial<T>>(v: V) =>
   ({ deletedAt: unixTime(), ...v }) as V;
 
 const unixTime = () => (Date.now() / 1000) | 0;
+
+const makeColumnFilter = (columns?: string[]) =>
+  Object.fromEntries(columns?.map((k) => [k, undefined]) ?? []);
+
+function parseFilter<T extends ApiRecord>(
+  parse: ParseItem<Partial<T>>,
+  filter: any,
+) {
+  const parsedFilter = Object.fromEntries(
+    Object.entries(filter).map(([key, value]) => [
+      key,
+      (Array.isArray(value) ? value : [value]).map(
+        (v) => parse({ [key]: v })[key],
+      ),
+    ]),
+  );
+  return parsedFilter;
+}
