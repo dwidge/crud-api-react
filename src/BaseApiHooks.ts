@@ -41,6 +41,11 @@ export type BaseApiHooks<T extends ApiRecord, PK> = {
 
   metrics?: ApiMetrics;
 
+  FilterProvider: React.FC<{
+    filter?: Partial<T>;
+    children: React.ReactNode;
+  }>;
+
   CacheProvider: React.FC<{
     filter?: ApiFilterObject<T> | undefined;
     options?: QueryOptions<StringKey<T>> & {

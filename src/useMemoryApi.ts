@@ -572,5 +572,6 @@ export const useMemoryApi = <
     get,
     count,
     CacheProvider: ({ children }) => children,
+    FilterProvider: ({ children }) => children,
   };
 };

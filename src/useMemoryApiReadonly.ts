@@ -303,5 +303,6 @@ export const useMemoryApiReadonly = <
     get,
     count,
     CacheProvider: ({ children }) => children,
+    FilterProvider: ({ children }) => children,
   };
 };
