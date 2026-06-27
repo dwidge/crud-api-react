@@ -3,7 +3,7 @@
 // https://www.boost.org/LICENSE_1_0.txt
 
 import useSWR from "swr";
-import z from "zod";
+import { z } from "zod";
 import { randId } from "./randId.js";
 
 export const useDeviceId = (key = "deviceId"): string | undefined => {
